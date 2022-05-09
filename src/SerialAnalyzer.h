@@ -26,7 +26,7 @@ class SerialAnalyzer : public Analyzer2
     disable : 4251 ) // warning C4251: 'SerialAnalyzer::<...>' : class <...> needs to have dll-interface to be used by clients of class
 
   protected: // functions
-    void ComputeSampleOffsets();
+    U64 SerialAnalyzer::ReadBytes(U64 num_bytes);
 
   protected: // vars
     std::auto_ptr<SerialAnalyzerSettings> mSettings;
@@ -38,10 +38,7 @@ class SerialAnalyzer : public Analyzer2
 
     // Serial analysis vars:
     U32 mSampleRateHz;
-    std::vector<U32> mSampleOffsets;
-    U32 mParityBitOffset;
-    U32 mStartOfStopBitOffset;
-    U32 mEndOfStopBitOffset;
+    U32 mSamplesPerBit;
     BitState mBitLow;
     BitState mBitHigh;
 

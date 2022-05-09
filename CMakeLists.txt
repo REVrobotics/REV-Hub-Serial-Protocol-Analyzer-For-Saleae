@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.11)
-project(serial_analyzer)
+project(rev_hub_analyzer)
 
 add_definitions( -DLOGIC2 )
 

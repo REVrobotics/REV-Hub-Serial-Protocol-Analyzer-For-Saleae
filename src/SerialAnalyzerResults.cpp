@@ -31,12 +31,8 @@ void SerialAnalyzerResults::GenerateBubbleText( U64 frame_index, Channel& /*chan
     if( ( frame.mFlags & PARITY_ERROR_FLAG ) != 0 )
         parity_error = true;
 
-    U32 bits_per_transfer = mSettings->mBitsPerTransfer;
-    if( mSettings->mSerialMode != SerialAnalyzerEnums::Normal )
-        bits_per_transfer--;
-
     char number_str[ 128 ];
-    AnalyzerHelpers::GetNumberString( frame.mData1, display_base, bits_per_transfer, number_str, 128 );
+    AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
 
     char result_str[ 128 ];
 
@@ -102,95 +98,40 @@ void SerialAnalyzerResults::GenerateExportFile( const char* file, DisplayBase di
 
     void* f = AnalyzerHelpers::StartFile( file );
 
-    if( mSettings->mSerialMode == SerialAnalyzerEnums::Normal )
+    ss << "Time [s],Value,Parity Error,Framing Error" << std::endl;
+
+    for( U32 i = 0; i < num_frames; i++ )
     {
-        // Normal case -- not MP mode.
-        ss << "Time [s],Value,Parity Error,Framing Error" << std::endl;
+        Frame frame = GetFrame( i );
 
-        for( U32 i = 0; i < num_frames; i++ )
+        // static void GetTimeString( U64 sample, U64 trigger_sample, U32 sample_rate_hz, char* result_string, U32
+        // result_string_max_length );
+        char time_str[ 128 ];
+        AnalyzerHelpers::GetTimeString( frame.mStartingSampleInclusive, trigger_sample, sample_rate, time_str, 128 );
+
+        char number_str[ 128 ];
+        AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
+
+        ss << time_str << "," << number_str;
+
+        if( ( frame.mFlags & PARITY_ERROR_FLAG ) != 0 )
+            ss << ",Error,";
+        else
+            ss << ",,";
+
+        if( ( frame.mFlags & FRAMING_ERROR_FLAG ) != 0 )
+            ss << "Error";
+
+
+        ss << std::endl;
+
+        AnalyzerHelpers::AppendToFile( ( U8* )ss.str().c_str(), ss.str().length(), f );
+        ss.str( std::string() );
+
+        if( UpdateExportProgressAndCheckForCancel( i, num_frames ) == true )
         {
-            Frame frame = GetFrame( i );
-
-            // static void GetTimeString( U64 sample, U64 trigger_sample, U32 sample_rate_hz, char* result_string, U32
-            // result_string_max_length );
-            char time_str[ 128 ];
-            AnalyzerHelpers::GetTimeString( frame.mStartingSampleInclusive, trigger_sample, sample_rate, time_str, 128 );
-
-            char number_str[ 128 ];
-            AnalyzerHelpers::GetNumberString( frame.mData1, display_base, mSettings->mBitsPerTransfer, number_str, 128 );
-
-            ss << time_str << "," << number_str;
-
-            if( ( frame.mFlags & PARITY_ERROR_FLAG ) != 0 )
-                ss << ",Error,";
-            else
-                ss << ",,";
-
-            if( ( frame.mFlags & FRAMING_ERROR_FLAG ) != 0 )
-                ss << "Error";
-
-
-            ss << std::endl;
-
-            AnalyzerHelpers::AppendToFile( ( U8* )ss.str().c_str(), ss.str().length(), f );
-            ss.str( std::string() );
-
-            if( UpdateExportProgressAndCheckForCancel( i, num_frames ) == true )
-            {
-                AnalyzerHelpers::EndFile( f );
-                return;
-            }
-        }
-    }
-    else
-    {
-        // MP mode.
-        ss << "Time [s],Packet ID,Address,Data,Framing Error" << std::endl;
-        U64 address = 0;
-
-        for( U32 i = 0; i < num_frames; i++ )
-        {
-            Frame frame = GetFrame( i );
-
-            if( ( frame.mFlags & MP_MODE_ADDRESS_FLAG ) != 0 )
-            {
-                address = frame.mData1;
-                continue;
-            }
-
-            U64 packet_id = GetPacketContainingFrameSequential( i );
-
-            // static void GetTimeString( U64 sample, U64 trigger_sample, U32 sample_rate_hz, char* result_string, U32
-            // result_string_max_length );
-            char time_str[ 128 ];
-            AnalyzerHelpers::GetTimeString( frame.mStartingSampleInclusive, trigger_sample, sample_rate, time_str, 128 );
-
-            char address_str[ 128 ];
-            AnalyzerHelpers::GetNumberString( address, display_base, mSettings->mBitsPerTransfer - 1, address_str, 128 );
-
-            char number_str[ 128 ];
-            AnalyzerHelpers::GetNumberString( frame.mData1, display_base, mSettings->mBitsPerTransfer - 1, number_str, 128 );
-            if( packet_id == INVALID_RESULT_INDEX )
-                ss << time_str << ","
-                   << ""
-                   << "," << address_str << "," << number_str << ",";
-            else
-                ss << time_str << "," << packet_id << "," << address_str << "," << number_str << ",";
-
-            if( ( frame.mFlags & FRAMING_ERROR_FLAG ) != 0 )
-                ss << "Error";
-
-            ss << std::endl;
-
-            AnalyzerHelpers::AppendToFile( ( U8* )ss.str().c_str(), ss.str().length(), f );
-            ss.str( std::string() );
-
-
-            if( UpdateExportProgressAndCheckForCancel( i, num_frames ) == true )
-            {
-                AnalyzerHelpers::EndFile( f );
-                return;
-            }
+            AnalyzerHelpers::EndFile( f );
+            return;
         }
     }
 
@@ -211,12 +152,8 @@ void SerialAnalyzerResults::GenerateFrameTabularText( U64 frame_index, DisplayBa
     if( ( frame.mFlags & PARITY_ERROR_FLAG ) != 0 )
         parity_error = true;
 
-    U32 bits_per_transfer = mSettings->mBitsPerTransfer;
-    if( mSettings->mSerialMode != SerialAnalyzerEnums::Normal )
-        bits_per_transfer--;
-
     char number_str[ 128 ];
-    AnalyzerHelpers::GetNumberString( frame.mData1, display_base, bits_per_transfer, number_str, 128 );
+    AnalyzerHelpers::GetNumberString( frame.mData1, display_base, 8, number_str, 128 );
 
     char result_str[ 128 ];
 

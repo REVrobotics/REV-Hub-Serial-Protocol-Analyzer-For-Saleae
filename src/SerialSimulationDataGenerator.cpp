@@ -17,18 +17,9 @@ void SerialSimulationDataGenerator::Initialize( U32 simulation_sample_rate, Seri
     mClockGenerator.Init( mSettings->mBitRate, simulation_sample_rate );
     mSerialSimulationData.SetChannel( mSettings->mInputChannel );
     mSerialSimulationData.SetSampleRate( simulation_sample_rate );
-
-    if( mSettings->mInverted == false )
-    {
-        mBitLow = BIT_LOW;
-        mBitHigh = BIT_HIGH;
-    }
-    else
-    {
-        mBitLow = BIT_HIGH;
-        mBitHigh = BIT_LOW;
-    }
-
+    mBitLow = BIT_LOW;
+    mBitHigh = BIT_HIGH;
+    
     mSerialSimulationData.SetInitialBitState( mBitHigh );
     mSerialSimulationData.Advance( mClockGenerator.AdvanceByHalfPeriod( 10.0 ) ); // insert 10 bit-periods of idle
 
@@ -38,18 +29,12 @@ void SerialSimulationDataGenerator::Initialize( U32 simulation_sample_rate, Seri
     mMpModeDataMask = 0;
     mNumBitsMask = 0;
 
-    U32 num_bits = mSettings->mBitsPerTransfer;
+    U32 num_bits = 8;
     for( U32 i = 0; i < num_bits; i++ )
     {
         mNumBitsMask <<= 1;
         mNumBitsMask |= 0x1;
     }
-
-    if( mSettings->mSerialMode == SerialAnalyzerEnums::MpModeMsbOneMeansAddress )
-        mMpModeAddressMask = 0x1ull << ( mSettings->mBitsPerTransfer );
-
-    if( mSettings->mSerialMode == SerialAnalyzerEnums::MpModeMsbZeroMeansAddress )
-        mMpModeDataMask = 0x1ull << ( mSettings->mBitsPerTransfer );
 }
 
 U32 SerialSimulationDataGenerator::GenerateSimulationData( U64 largest_sample_requested, U32 sample_rate,
@@ -60,36 +45,9 @@ U32 SerialSimulationDataGenerator::GenerateSimulationData( U64 largest_sample_re
 
     while( mSerialSimulationData.GetCurrentSampleNumber() < adjusted_largest_sample_requested )
     {
-        if( mSettings->mSerialMode == SerialAnalyzerEnums::Normal )
-        {
-            CreateSerialByte( mValue++ );
+        CreateSerialByte( mValue++ );
 
-            mSerialSimulationData.Advance( mClockGenerator.AdvanceByHalfPeriod( 10.0 ) ); // insert 10 bit-periods of idle
-        }
-        else
-        {
-            U64 address = 0x1 | mMpModeAddressMask;
-            CreateSerialByte( address );
-
-            for( U32 i = 0; i < 4; i++ )
-            {
-                mSerialSimulationData.Advance( mClockGenerator.AdvanceByHalfPeriod( 2.0 ) ); // insert 2 bit-periods of idle
-                CreateSerialByte( ( mValue++ & mNumBitsMask ) | mMpModeDataMask );
-            };
-
-            mSerialSimulationData.Advance( mClockGenerator.AdvanceByHalfPeriod( 20.0 ) ); // insert 20 bit-periods of idle
-
-            address = 0x2 | mMpModeAddressMask;
-            CreateSerialByte( address );
-
-            for( U32 i = 0; i < 4; i++ )
-            {
-                mSerialSimulationData.Advance( mClockGenerator.AdvanceByHalfPeriod( 2.0 ) ); // insert 2 bit-periods of idle
-                CreateSerialByte( ( mValue++ & mNumBitsMask ) | mMpModeDataMask );
-            };
-
-            mSerialSimulationData.Advance( mClockGenerator.AdvanceByHalfPeriod( 20.0 ) ); // insert 20 bit-periods of idle
-        }
+        mSerialSimulationData.Advance( mClockGenerator.AdvanceByHalfPeriod( 10.0 ) ); // insert 10 bit-periods of idle
     }
 
     *simulation_channels = &mSerialSimulationData;
