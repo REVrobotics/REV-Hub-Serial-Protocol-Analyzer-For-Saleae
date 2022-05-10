@@ -1,0 +1,13 @@
+{
+  "name": "REV Hub Serial Protocol Analyzer",
+  "apiVersion": "1.1.0",
+  "author": "REV Robotics",
+  "version": "0.0.1",
+  "description": "",
+  "extensions": {
+    "REV Hub Serial Protocol Analyzer": {
+      "type": "HighLevelAnalyzer",
+      "entryPoint": "HighLevelAnalyzer.Hla"
+    }
+  }
+}
