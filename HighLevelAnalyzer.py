@@ -16,6 +16,12 @@ class Hla(HighLevelAnalyzer):
         },
         'rhsp_resp': {
             'format': 'RHSP response ref={{data.refNum}} (msg={{data.msgNum}})'
+        },
+        'rhsp_ka': {
+            'format': 'RHSP KeepAlive msg={{data.msgNum}}'
+        },
+        'rhsp_fs': {
+            'format': 'RHSP FailSafe msg={{data.msgNum}}'
         }
     }
 
@@ -24,6 +30,7 @@ class Hla(HighLevelAnalyzer):
         self.currentPacketStartTime = 0
         self.packetLengthBytes: Optional[bytearray] = None
         self.packetLength = 0
+        # TODO(Noah): Keep track of QueryInterface responses
 
     def clearCurrentPacket(self):
         self.currentPacket = None
@@ -63,6 +70,10 @@ class Hla(HighLevelAnalyzer):
                     frameType = 'rhsp_ack'
                 elif cmd == 0x7F02:
                     frameType = 'rhsp_nack'
+                elif cmd == 0x7F04:
+                    frameType = 'rhsp_ka'
+                elif cmd == 0x7F05:
+                    frameType = 'rhsp_fs'
                 elif refNum == 0:
                     frameType = 'rhsp_cmd'
                     
