@@ -6,7 +6,7 @@ from saleae.analyzers import HighLevelAnalyzer, AnalyzerFrame, StringSetting, Nu
 class Hla(HighLevelAnalyzer):
     result_types = {
         'rhsp': {
-            'format': 'RHSP packet'
+            'format': 'RHSP cmd={{data.cmd}} msg={{data.msgNum}} ref={{data.refNum}}'
         }
     }
 
@@ -43,9 +43,15 @@ class Hla(HighLevelAnalyzer):
             elif bytesReceived == 4:
                 # Read the second length byte
                 self.packetLengthBytes.append(byte)
-                self.packetLength = int.from_bytes(self.packetLengthBytes, "little")
+                self.packetLength = int.from_bytes(self.packetLengthBytes, 'little')
             elif bytesReceived == self.packetLength:
+                msgNum = self.currentPacket[6]
+                refNum = self.currentPacket[7]
+                cmd = int.from_bytes(self.currentPacket[8:10], 'little')
                 result = AnalyzerFrame('rhsp', self.currentPacketStartTime, frame.end_time, {
+                    'cmd': hex(cmd),
+                    'msgNum': msgNum,
+                    'refNum': refNum
                 })
                 self.clearCurrentPacket()
                 return result
