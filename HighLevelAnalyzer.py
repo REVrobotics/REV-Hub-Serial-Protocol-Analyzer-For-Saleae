@@ -5,23 +5,17 @@ from saleae.analyzers import HighLevelAnalyzer, AnalyzerFrame, StringSetting, Nu
 
 class Hla(HighLevelAnalyzer):
     result_types = {
-        'rhsp_cmd': {
+        'rhsp_generic_cmd': {
             'format': 'RHSP cmd={{data.cmd}} msg={{data.msgNum}}'
         },
-        'rhsp_ack': {
-            'format': 'RHSP ACK ref={{data.refNum}} (msg={{data.msgNum}})'
+        'rhsp_known_cmd': {
+            'format': 'RHSP {{data.packetTypeName}} msg={{data.msgNum}}'
         },
-        'rhsp_nack': {
-            'format': 'RHSP NACK ref={{data.refNum}} (msg={{data.msgNum}})'
-        },
-        'rhsp_resp': {
+        'rhsp_generic_resp': {
             'format': 'RHSP response ref={{data.refNum}} (msg={{data.msgNum}})'
         },
-        'rhsp_ka': {
-            'format': 'RHSP KeepAlive msg={{data.msgNum}}'
-        },
-        'rhsp_fs': {
-            'format': 'RHSP FailSafe msg={{data.msgNum}}'
+        'rhsp_known_resp': {
+            'format': 'RHSP {{data.packetTypeName}} ref={{data.refNum}} (msg={{data.msgNum}})'
         }
     }
 
@@ -63,22 +57,28 @@ class Hla(HighLevelAnalyzer):
             elif bytesReceived == self.packetLength:
                 msgNum = self.currentPacket[6]
                 refNum = self.currentPacket[7]
-                cmd = int.from_bytes(self.currentPacket[8:10], 'little')
+                typeId = int.from_bytes(self.currentPacket[8:10], 'little')
 
-                frameType = 'rhsp_resp'
-                if cmd == 0x7F01:
-                    frameType = 'rhsp_ack'
-                elif cmd == 0x7F02:
-                    frameType = 'rhsp_nack'
-                elif cmd == 0x7F04:
-                    frameType = 'rhsp_ka'
-                elif cmd == 0x7F05:
-                    frameType = 'rhsp_fs'
+                frameType = 'rhsp_generic_resp'
+                packetTypeName = ''
+                if typeId == 0x7F01:
+                    frameType = 'rhsp_known_resp'
+                    packetTypeName = 'ACK'
+                elif typeId == 0x7F02:
+                    frameType = 'rhsp_known_resp'
+                    packetTypeName = 'NACK'
+                elif typeId == 0x7F04:
+                    frameType = 'rhsp_known_cmd'
+                    packetTypeName = 'KeepAlive'
+                elif typeId == 0x7F05:
+                    frameType = 'rhsp_known_cmd'
+                    packetTypeName = 'FailSafe'
                 elif refNum == 0:
-                    frameType = 'rhsp_cmd'
+                    frameType = 'rhsp_generic_cmd'
                     
                 result = AnalyzerFrame(frameType, self.currentPacketStartTime, frame.end_time, {
-                    'cmd': hex(cmd),
+                    'cmd': hex(typeId),
+                    'packetTypeName': packetTypeName,
                     'msgNum': msgNum,
                     'refNum': refNum
                 })
