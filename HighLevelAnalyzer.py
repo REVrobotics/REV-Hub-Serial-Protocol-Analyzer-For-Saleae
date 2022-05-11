@@ -5,8 +5,17 @@ from saleae.analyzers import HighLevelAnalyzer, AnalyzerFrame, StringSetting, Nu
 
 class Hla(HighLevelAnalyzer):
     result_types = {
-        'rhsp': {
-            'format': 'RHSP cmd={{data.cmd}} msg={{data.msgNum}} ref={{data.refNum}}'
+        'rhsp_cmd': {
+            'format': 'RHSP cmd={{data.cmd}} msg={{data.msgNum}}'
+        },
+        'rhsp_ack': {
+            'format': 'RHSP ACK ref={{data.refNum}} (msg={{data.msgNum}})'
+        },
+        'rhsp_nack': {
+            'format': 'RHSP NACK ref={{data.refNum}} (msg={{data.msgNum}})'
+        },
+        'rhsp_resp': {
+            'format': 'RHSP response ref={{data.refNum}} (msg={{data.msgNum}})'
         }
     }
 
@@ -48,7 +57,16 @@ class Hla(HighLevelAnalyzer):
                 msgNum = self.currentPacket[6]
                 refNum = self.currentPacket[7]
                 cmd = int.from_bytes(self.currentPacket[8:10], 'little')
-                result = AnalyzerFrame('rhsp', self.currentPacketStartTime, frame.end_time, {
+
+                frameType = 'rhsp_resp'
+                if cmd == 0x7F01:
+                    frameType = 'rhsp_ack'
+                elif cmd == 0x7F02:
+                    frameType = 'rhsp_nack'
+                elif refNum == 0:
+                    frameType = 'rhsp_cmd'
+                    
+                result = AnalyzerFrame(frameType, self.currentPacketStartTime, frame.end_time, {
                     'cmd': hex(cmd),
                     'msgNum': msgNum,
                     'refNum': refNum
