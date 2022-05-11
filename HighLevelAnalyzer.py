@@ -1,6 +1,6 @@
 from typing import Optional
 
-from saleae.analyzers import HighLevelAnalyzer, AnalyzerFrame, StringSetting, NumberSetting, ChoicesSetting
+from saleae.analyzers import HighLevelAnalyzer, AnalyzerFrame, NumberSetting
 
 GENERIC_CMD_FRAME_TYPE = 'rhsp_generic_cmd'
 KNOWN_CMD_FRAME_TYPE = 'rhsp_known_cmd'
@@ -9,6 +9,8 @@ KNOWN_RESP_FRAME_TYPE = 'rhsp_known_resp'
 
 
 class Hla(HighLevelAnalyzer):
+    DEKAInterfaceFirstId = NumberSetting()
+
     result_types = {
         GENERIC_CMD_FRAME_TYPE: {
             'format': 'RHSP cmd={{data.cmd}} msg={{data.msgNum}}'
@@ -29,7 +31,6 @@ class Hla(HighLevelAnalyzer):
         self.currentPacketStartTime = 0
         self.packetLengthBytes: Optional[bytearray] = None
         self.packetLength = 0
-        # TODO(Noah): Keep track of QueryInterface responses
 
     def clearCurrentPacket(self):
         self.currentPacket = None
@@ -66,6 +67,7 @@ class Hla(HighLevelAnalyzer):
                 payload: bytearray = self.currentPacket[10:-1]
                 frameType = GENERIC_RESP_FRAME_TYPE
                 packetTypeName = 'Response'
+
                 if typeId == 0x7F01:
                     frameType = KNOWN_RESP_FRAME_TYPE
                     packetTypeName = 'ACK'
@@ -99,10 +101,31 @@ class Hla(HighLevelAnalyzer):
                 elif typeId == 0x7F0F:
                     frameType = KNOWN_CMD_FRAME_TYPE
                     packetTypeName = 'Discovery'
+                elif typeId == self.DEKAInterfaceFirstId + 37:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'I2cWriteSingleByte'
+                elif typeId == self.DEKAInterfaceFirstId + 38:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'I2cWriteMultipleBytes'
+                elif typeId == self.DEKAInterfaceFirstId + 39:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'I2cReadSingleByte'
+                elif typeId == self.DEKAInterfaceFirstId + 40:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'I2cReadMultipleBytes'
+                elif typeId == self.DEKAInterfaceFirstId + 41:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'I2cReadStatusQuery'
+                elif typeId == self.DEKAInterfaceFirstId + 42:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'I2cWriteStatusQuery'
+                elif typeId == self.DEKAInterfaceFirstId + 52:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'I2cWriteReadMultipleBytes'
                 elif refNum == 0:
                     frameType = GENERIC_CMD_FRAME_TYPE
                     packetTypeName = 'Command'
-                    
+
                 result = AnalyzerFrame(frameType, self.currentPacketStartTime, frame.end_time, {
                     'cmd': hex(typeId),
                     'packetTypeName': packetTypeName,
