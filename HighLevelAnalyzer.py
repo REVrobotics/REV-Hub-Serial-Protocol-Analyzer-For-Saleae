@@ -67,12 +67,33 @@ class Hla(HighLevelAnalyzer):
                 elif typeId == 0x7F02:
                     frameType = 'rhsp_known_resp'
                     packetTypeName = 'NACK'
+                elif typeId == 0x7F03:
+                    frameType = 'rhsp_known_cmd'
+                    packetTypeName = 'GetModuleStatus'
                 elif typeId == 0x7F04:
                     frameType = 'rhsp_known_cmd'
                     packetTypeName = 'KeepAlive'
                 elif typeId == 0x7F05:
                     frameType = 'rhsp_known_cmd'
                     packetTypeName = 'FailSafe'
+                elif typeId == 0x7F06:
+                    frameType = 'rhsp_known_cmd'
+                    packetTypeName = 'SetNewModuleAddress'
+                elif typeId == 0x7F07:
+                    frameType = 'rhsp_known_cmd'
+                    packetTypeName = 'QueryInterface'
+                elif typeId == 0x7F0C:
+                    frameType = 'rhsp_known_cmd'
+                    packetTypeName = 'SetModuleLEDPattern'
+                elif typeId == 0x7F0D:
+                    frameType = 'rhsp_known_cmd'
+                    packetTypeName = 'GetModuleLEDPattern'
+                elif typeId == 0x7F0E:
+                    frameType = 'rhsp_known_cmd'
+                    packetTypeName = 'DebugLogLevel'
+                elif typeId == 0x7F0F:
+                    frameType = 'rhsp_known_cmd'
+                    packetTypeName = 'Discovery'
                 elif refNum == 0:
                     frameType = 'rhsp_generic_cmd'
                     
