@@ -2,19 +2,24 @@ from typing import Optional
 
 from saleae.analyzers import HighLevelAnalyzer, AnalyzerFrame, StringSetting, NumberSetting, ChoicesSetting
 
+GENERIC_CMD_FRAME_TYPE = 'rhsp_generic_cmd'
+KNOWN_CMD_FRAME_TYPE = 'rhsp_known_cmd'
+GENERIC_RESP_FRAME_TYPE = 'rhsp_generic_resp'
+KNOWN_RESP_FRAME_TYPE = 'rhsp_known_resp'
+
 
 class Hla(HighLevelAnalyzer):
     result_types = {
-        'rhsp_generic_cmd': {
+        GENERIC_CMD_FRAME_TYPE: {
             'format': 'RHSP cmd={{data.cmd}} msg={{data.msgNum}}'
         },
-        'rhsp_known_cmd': {
+        KNOWN_CMD_FRAME_TYPE: {
             'format': 'RHSP {{data.packetTypeName}} msg={{data.msgNum}}'
         },
-        'rhsp_generic_resp': {
+        GENERIC_RESP_FRAME_TYPE: {
             'format': 'RHSP response ref={{data.refNum}} (msg={{data.msgNum}})'
         },
-        'rhsp_known_resp': {
+        KNOWN_RESP_FRAME_TYPE: {
             'format': 'RHSP {{data.packetTypeName}} ref={{data.refNum}} (msg={{data.msgNum}})'
         }
     }
@@ -58,44 +63,45 @@ class Hla(HighLevelAnalyzer):
                 msgNum = self.currentPacket[6]
                 refNum = self.currentPacket[7]
                 typeId = int.from_bytes(self.currentPacket[8:10], 'little')
-
-                frameType = 'rhsp_generic_resp'
-                packetTypeName = ''
+                payload: bytearray = self.currentPacket[10:-1]
+                frameType = GENERIC_RESP_FRAME_TYPE
+                packetTypeName = 'Response'
                 if typeId == 0x7F01:
-                    frameType = 'rhsp_known_resp'
+                    frameType = KNOWN_RESP_FRAME_TYPE
                     packetTypeName = 'ACK'
                 elif typeId == 0x7F02:
-                    frameType = 'rhsp_known_resp'
+                    frameType = KNOWN_RESP_FRAME_TYPE
                     packetTypeName = 'NACK'
                 elif typeId == 0x7F03:
-                    frameType = 'rhsp_known_cmd'
+                    frameType = KNOWN_CMD_FRAME_TYPE
                     packetTypeName = 'GetModuleStatus'
                 elif typeId == 0x7F04:
-                    frameType = 'rhsp_known_cmd'
+                    frameType = KNOWN_CMD_FRAME_TYPE
                     packetTypeName = 'KeepAlive'
                 elif typeId == 0x7F05:
-                    frameType = 'rhsp_known_cmd'
+                    frameType = KNOWN_CMD_FRAME_TYPE
                     packetTypeName = 'FailSafe'
                 elif typeId == 0x7F06:
-                    frameType = 'rhsp_known_cmd'
+                    frameType = KNOWN_CMD_FRAME_TYPE
                     packetTypeName = 'SetNewModuleAddress'
                 elif typeId == 0x7F07:
-                    frameType = 'rhsp_known_cmd'
+                    frameType = KNOWN_CMD_FRAME_TYPE
                     packetTypeName = 'QueryInterface'
                 elif typeId == 0x7F0C:
-                    frameType = 'rhsp_known_cmd'
+                    frameType = KNOWN_CMD_FRAME_TYPE
                     packetTypeName = 'SetModuleLEDPattern'
                 elif typeId == 0x7F0D:
-                    frameType = 'rhsp_known_cmd'
+                    frameType = KNOWN_CMD_FRAME_TYPE
                     packetTypeName = 'GetModuleLEDPattern'
                 elif typeId == 0x7F0E:
-                    frameType = 'rhsp_known_cmd'
+                    frameType = KNOWN_CMD_FRAME_TYPE
                     packetTypeName = 'DebugLogLevel'
                 elif typeId == 0x7F0F:
-                    frameType = 'rhsp_known_cmd'
+                    frameType = KNOWN_CMD_FRAME_TYPE
                     packetTypeName = 'Discovery'
                 elif refNum == 0:
-                    frameType = 'rhsp_generic_cmd'
+                    frameType = GENERIC_CMD_FRAME_TYPE
+                    packetTypeName = 'Command'
                     
                 result = AnalyzerFrame(frameType, self.currentPacketStartTime, frame.end_time, {
                     'cmd': hex(typeId),
@@ -105,5 +111,3 @@ class Hla(HighLevelAnalyzer):
                 })
                 self.clearCurrentPacket()
                 return result
-
-
