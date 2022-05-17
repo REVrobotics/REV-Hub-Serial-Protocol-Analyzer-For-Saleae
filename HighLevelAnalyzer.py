@@ -6,7 +6,7 @@ GENERIC_CMD_FRAME_TYPE = 'rhsp_generic_cmd'
 KNOWN_CMD_FRAME_TYPE = 'rhsp_known_cmd'
 GENERIC_RESP_FRAME_TYPE = 'rhsp_generic_resp'
 KNOWN_RESP_FRAME_TYPE = 'rhsp_known_resp'
-
+I2C_CMD_FRAME_TYPE = 'rhsp_i2c_cmd'
 
 class Hla(HighLevelAnalyzer):
     DEKAInterfaceFirstId = NumberSetting()
@@ -23,6 +23,9 @@ class Hla(HighLevelAnalyzer):
         },
         KNOWN_RESP_FRAME_TYPE: {
             'format': 'RHSP {{data.packetTypeName}} ref={{data.refNum}} (msg={{data.msgNum}})'
+        },
+        I2C_CMD_FRAME_TYPE: {
+            'format': 'RHSP {{data.packetTypeName}} bus={{data.i2cBus}} addr={{data.i2cAddr}} reg={{data.i2cReg}} length={{data.i2cLength}} msg={{data.msgNum}}'
         }
     }
 
@@ -68,6 +71,11 @@ class Hla(HighLevelAnalyzer):
                 frameType = GENERIC_RESP_FRAME_TYPE
                 packetTypeName = 'Response'
 
+                i2cBus = ""
+                i2cAddr = ""
+                i2cReg = ""
+                i2cLength = ""
+
                 if typeId == 0x7F01:
                     frameType = KNOWN_RESP_FRAME_TYPE
                     packetTypeName = 'ACK'
@@ -102,17 +110,31 @@ class Hla(HighLevelAnalyzer):
                     frameType = KNOWN_CMD_FRAME_TYPE
                     packetTypeName = 'Discovery'
                 elif typeId == self.DEKAInterfaceFirstId + 37:
-                    frameType = KNOWN_CMD_FRAME_TYPE
+                    frameType = I2C_CMD_FRAME_TYPE
                     packetTypeName = 'I2cWriteSingleByte'
+                    i2cBus = payload[0]
+                    i2cAddr = hex(payload[1])
+                    i2cLength = 0
                 elif typeId == self.DEKAInterfaceFirstId + 38:
-                    frameType = KNOWN_CMD_FRAME_TYPE
+                    frameType = I2C_CMD_FRAME_TYPE
                     packetTypeName = 'I2cWriteMultipleBytes'
+                    i2cBus = payload[0]
+                    i2cAddr = hex(payload[1])
+                    i2cReg = hex(payload[3])
+                    # Subtract the register byte
+                    i2cLength = payload[2] - 1
                 elif typeId == self.DEKAInterfaceFirstId + 39:
-                    frameType = KNOWN_CMD_FRAME_TYPE
+                    frameType = I2C_CMD_FRAME_TYPE
                     packetTypeName = 'I2cReadSingleByte'
+                    i2cBus = payload[0]
+                    i2cAddr = hex(payload[1])
+                    i2cLength = 1
                 elif typeId == self.DEKAInterfaceFirstId + 40:
-                    frameType = KNOWN_CMD_FRAME_TYPE
+                    frameType = I2C_CMD_FRAME_TYPE
                     packetTypeName = 'I2cReadMultipleBytes'
+                    i2cBus = payload[0]
+                    i2cAddr = hex(payload[1])
+                    i2cLength = payload[2]
                 elif typeId == self.DEKAInterfaceFirstId + 41:
                     frameType = KNOWN_CMD_FRAME_TYPE
                     packetTypeName = 'I2cReadStatusQuery'
@@ -120,8 +142,12 @@ class Hla(HighLevelAnalyzer):
                     frameType = KNOWN_CMD_FRAME_TYPE
                     packetTypeName = 'I2cWriteStatusQuery'
                 elif typeId == self.DEKAInterfaceFirstId + 52:
-                    frameType = KNOWN_CMD_FRAME_TYPE
+                    frameType = I2C_CMD_FRAME_TYPE
                     packetTypeName = 'I2cWriteReadMultipleBytes'
+                    i2cBus = payload[0]
+                    i2cAddr = hex(payload[1])
+                    i2cReg = hex(payload[3])
+                    i2cLength = payload[2]
                 elif refNum == 0:
                     frameType = GENERIC_CMD_FRAME_TYPE
                     packetTypeName = 'Command'
@@ -130,7 +156,11 @@ class Hla(HighLevelAnalyzer):
                     'cmd': hex(typeId),
                     'packetTypeName': packetTypeName,
                     'msgNum': msgNum,
-                    'refNum': refNum
+                    'refNum': refNum,
+                    'i2cBus': i2cBus,
+                    'i2cAddr': i2cAddr,
+                    'i2cReg': i2cReg,
+                    'i2cLength': i2cLength,
                 })
                 self.clearCurrentPacket()
                 return result
