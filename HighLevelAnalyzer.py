@@ -28,13 +28,13 @@ class Hla(HighLevelAnalyzer):
 
     def __init__(self):
         self.currentPacket: Optional[bytearray] = None
-        self.currentPacketStartTime = 0
+        self.currentPacketStartTime = None
         self.packetLengthBytes: Optional[bytearray] = None
         self.packetLength = 0
 
     def clearCurrentPacket(self):
         self.currentPacket = None
-        self.currentPacketStartTime = 0
+        self.currentPacketStartTime = None
         self.packetLengthBytes = None
         self.packetLength = 0
 
