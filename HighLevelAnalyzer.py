@@ -109,6 +109,94 @@ class Hla(HighLevelAnalyzer):
                 elif typeId == 0x7F0F:
                     frameType = KNOWN_CMD_FRAME_TYPE
                     packetTypeName = 'Discovery'
+                elif typeId == self.DEKAInterfaceFirstId + 0:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'GetBulkInputData'
+                elif typeId == self.DEKAInterfaceFirstId + 1:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'SetSingleDioOutput'
+                elif typeId == self.DEKAInterfaceFirstId + 2:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'SetAllDioOutputs'
+                elif typeId == self.DEKAInterfaceFirstId + 3:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'SetDioDirection'
+                elif typeId == self.DEKAInterfaceFirstId + 4:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'GetDioDirection'
+                elif typeId == self.DEKAInterfaceFirstId + 5:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'GetSingleDioInput'
+                elif typeId == self.DEKAInterfaceFirstId + 6:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'GetAllDioInputs'
+                elif typeId == self.DEKAInterfaceFirstId + 7:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'GetADC'
+                elif typeId == self.DEKAInterfaceFirstId + 8:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'SetMotorChannelMode'
+                elif typeId == self.DEKAInterfaceFirstId + 9:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'GetMotorChannelMode'
+                elif typeId == self.DEKAInterfaceFirstId + 10:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'SetMotorChannelEnable'
+                elif typeId == self.DEKAInterfaceFirstId + 11:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'GetMotorChannelEnable'
+                elif typeId == self.DEKAInterfaceFirstId + 14:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'ResetMotorEncoder'
+                elif typeId == self.DEKAInterfaceFirstId + 15:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'SetMotorConstantPower'
+                elif typeId == self.DEKAInterfaceFirstId + 16:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'GetMotorConstantPower'
+                elif typeId == self.DEKAInterfaceFirstId + 17:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'SetMotorTargetVelocity'
+                elif typeId == self.DEKAInterfaceFirstId + 18:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'GetMotorTargetVelocity'
+                elif typeId == self.DEKAInterfaceFirstId + 19:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'SetMotorTargetPosition'
+                elif typeId == self.DEKAInterfaceFirstId + 20:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'GetMotorTargetPosition'
+                elif typeId == self.DEKAInterfaceFirstId + 21:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'IsMotorAtTarget'
+                elif typeId == self.DEKAInterfaceFirstId + 22:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'GetMotorEncoderPosition'
+                elif typeId == self.DEKAInterfaceFirstId + 23:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'SetMotorPIDControlLoopCoefficients'
+                elif typeId == self.DEKAInterfaceFirstId + 24:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'GetMotorPIDControlLoopCoefficients'
+                # DEKA interface commands 25-30 are unimplemented commands for PWM (separate from servo for some reason)
+                elif typeId == self.DEKAInterfaceFirstId + 31:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'SetServoConfiguration'
+                elif typeId == self.DEKAInterfaceFirstId + 32:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'GetServoConfiguration'
+                elif typeId == self.DEKAInterfaceFirstId + 33:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'SetServoPulseWidth'
+                elif typeId == self.DEKAInterfaceFirstId + 34:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'GetServoPulseWidth'
+                elif typeId == self.DEKAInterfaceFirstId + 35:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'SetServoEnable'
+                elif typeId == self.DEKAInterfaceFirstId + 36:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'GetServoEnable'
                 elif typeId == self.DEKAInterfaceFirstId + 37:
                     frameType = I2C_CMD_FRAME_TYPE
                     packetTypeName = 'I2cWriteSingleByte'
@@ -141,6 +229,15 @@ class Hla(HighLevelAnalyzer):
                 elif typeId == self.DEKAInterfaceFirstId + 42:
                     frameType = KNOWN_CMD_FRAME_TYPE
                     packetTypeName = 'I2cWriteStatusQuery'
+                elif typeId == self.DEKAInterfaceFirstId + 48:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'ReadVersionString'
+                elif typeId == self.DEKAInterfaceFirstId + 49:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'FtdiResetControl'
+                elif typeId == self.DEKAInterfaceFirstId + 51:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'SetMotorPIDFControlLoopCoefficients'
                 elif typeId == self.DEKAInterfaceFirstId + 52:
                     frameType = I2C_CMD_FRAME_TYPE
                     packetTypeName = 'I2cWriteReadMultipleBytes'
