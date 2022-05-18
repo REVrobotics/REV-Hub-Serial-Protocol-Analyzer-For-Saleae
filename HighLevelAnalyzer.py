@@ -7,6 +7,7 @@ KNOWN_CMD_FRAME_TYPE = 'rhsp_known_cmd'
 GENERIC_RESP_FRAME_TYPE = 'rhsp_generic_resp'
 KNOWN_RESP_FRAME_TYPE = 'rhsp_known_resp'
 I2C_CMD_FRAME_TYPE = 'rhsp_i2c_cmd'
+NACK_FRAME_TYPE = 'rhsp_nack'
 
 class Hla(HighLevelAnalyzer):
     DEKAInterfaceFirstId = NumberSetting()
@@ -26,6 +27,9 @@ class Hla(HighLevelAnalyzer):
         },
         I2C_CMD_FRAME_TYPE: {
             'format': 'RHSP {{data.packetTypeName}} bus={{data.i2cBus}} addr={{data.i2cAddr}} reg={{data.i2cReg}} length={{data.i2cLength}} msg={{data.msgNum}}'
+        },
+        NACK_FRAME_TYPE: {
+            'format': 'RHSP {{data.packetTypeName}} nackCode={{data.nackCode}} ref={{data.refNum}} (msg={{data.msgNum}})'
         }
     }
 
@@ -75,13 +79,15 @@ class Hla(HighLevelAnalyzer):
                 i2cAddr = ""
                 i2cReg = ""
                 i2cLength = ""
+                nackCode = ""
 
                 if typeId == 0x7F01:
                     frameType = KNOWN_RESP_FRAME_TYPE
                     packetTypeName = 'ACK'
                 elif typeId == 0x7F02:
-                    frameType = KNOWN_RESP_FRAME_TYPE
+                    frameType = NACK_FRAME_TYPE
                     packetTypeName = 'NACK'
+                    nackCode = payload[0]
                 elif typeId == 0x7F03:
                     frameType = KNOWN_CMD_FRAME_TYPE
                     packetTypeName = 'GetModuleStatus'
@@ -258,6 +264,7 @@ class Hla(HighLevelAnalyzer):
                     'i2cAddr': i2cAddr,
                     'i2cReg': i2cReg,
                     'i2cLength': i2cLength,
+                    'nackCode': str(nackCode)
                 })
                 self.clearCurrentPacket()
                 return result
