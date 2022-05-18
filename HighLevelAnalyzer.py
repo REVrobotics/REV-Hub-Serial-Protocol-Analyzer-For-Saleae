@@ -68,18 +68,18 @@ class Hla(HighLevelAnalyzer):
                 self.packetLengthBytes.append(byte)
                 self.packetLength = int.from_bytes(self.packetLengthBytes, 'little')
             elif bytesReceived == self.packetLength:
-                msgNum = self.currentPacket[6]
-                refNum = self.currentPacket[7]
-                typeId = int.from_bytes(self.currentPacket[8:10], 'little')
+                msgNum: int = self.currentPacket[6]
+                refNum: int = self.currentPacket[7]
+                typeId: int = int.from_bytes(self.currentPacket[8:10], 'little')
                 payload: bytearray = self.currentPacket[10:-1]
-                frameType = GENERIC_RESP_FRAME_TYPE
-                packetTypeName = 'Response'
+                frameType: str = GENERIC_RESP_FRAME_TYPE
+                packetTypeName: str = 'Response'
 
-                i2cBus = ""
-                i2cAddr = ""
-                i2cReg = ""
-                i2cLength = ""
-                nackCode = ""
+                i2cBus: str = ""
+                i2cAddr: str = ""
+                i2cReg: str = ""
+                i2cLength: str = ""
+                nackCode: str = ""
 
                 if typeId == 0x7F01:
                     frameType = KNOWN_RESP_FRAME_TYPE
@@ -87,7 +87,7 @@ class Hla(HighLevelAnalyzer):
                 elif typeId == 0x7F02:
                     frameType = NACK_FRAME_TYPE
                     packetTypeName = 'NACK'
-                    nackCode = payload[0]
+                    nackCode = str(payload[0])
                 elif typeId == 0x7F03:
                     frameType = KNOWN_CMD_FRAME_TYPE
                     packetTypeName = 'GetModuleStatus'
@@ -206,29 +206,29 @@ class Hla(HighLevelAnalyzer):
                 elif typeId == self.DEKAInterfaceFirstId + 37:
                     frameType = I2C_CMD_FRAME_TYPE
                     packetTypeName = 'I2cWriteSingleByte'
-                    i2cBus = payload[0]
+                    i2cBus = str(payload[0])
                     i2cAddr = hex(payload[1])
-                    i2cLength = 0
+                    i2cLength = '0'
                 elif typeId == self.DEKAInterfaceFirstId + 38:
                     frameType = I2C_CMD_FRAME_TYPE
                     packetTypeName = 'I2cWriteMultipleBytes'
-                    i2cBus = payload[0]
+                    i2cBus = str(payload[0])
                     i2cAddr = hex(payload[1])
                     i2cReg = hex(payload[3])
                     # Subtract the register byte
-                    i2cLength = payload[2] - 1
+                    i2cLength = str(payload[2] - 1)
                 elif typeId == self.DEKAInterfaceFirstId + 39:
                     frameType = I2C_CMD_FRAME_TYPE
                     packetTypeName = 'I2cReadSingleByte'
-                    i2cBus = payload[0]
+                    i2cBus = str(payload[0])
                     i2cAddr = hex(payload[1])
-                    i2cLength = 1
+                    i2cLength = '1'
                 elif typeId == self.DEKAInterfaceFirstId + 40:
                     frameType = I2C_CMD_FRAME_TYPE
                     packetTypeName = 'I2cReadMultipleBytes'
-                    i2cBus = payload[0]
+                    i2cBus = str(payload[0])
                     i2cAddr = hex(payload[1])
-                    i2cLength = payload[2]
+                    i2cLength = str(payload[2])
                 elif typeId == self.DEKAInterfaceFirstId + 41:
                     frameType = KNOWN_CMD_FRAME_TYPE
                     packetTypeName = 'I2cReadStatusQuery'
@@ -247,24 +247,27 @@ class Hla(HighLevelAnalyzer):
                 elif typeId == self.DEKAInterfaceFirstId + 52:
                     frameType = I2C_CMD_FRAME_TYPE
                     packetTypeName = 'I2cWriteReadMultipleBytes'
-                    i2cBus = payload[0]
+                    i2cBus = str(payload[0])
                     i2cAddr = hex(payload[1])
                     i2cReg = hex(payload[3])
-                    i2cLength = payload[2]
+                    i2cLength = str(payload[2])
                 elif refNum == 0:
                     frameType = GENERIC_CMD_FRAME_TYPE
                     packetTypeName = 'Command'
 
+                # All values should be reported as strings, not numbers.
+                # This gives us control of whether specific numbers are presented in hex or decimal,
+                # and it prevents Logic from adding unnecessary leading 0s to our values.
                 result = AnalyzerFrame(frameType, self.currentPacketStartTime, frame.end_time, {
                     'cmd': hex(typeId),
                     'packetTypeName': packetTypeName,
-                    'msgNum': msgNum,
-                    'refNum': refNum,
+                    'msgNum': str(msgNum),
+                    'refNum': str(refNum),
                     'i2cBus': i2cBus,
                     'i2cAddr': i2cAddr,
                     'i2cReg': i2cReg,
                     'i2cLength': i2cLength,
-                    'nackCode': str(nackCode)
+                    'nackCode': nackCode
                 })
                 self.clearCurrentPacket()
                 return result
