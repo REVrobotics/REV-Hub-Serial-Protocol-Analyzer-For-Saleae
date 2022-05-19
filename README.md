@@ -1,7 +1,7 @@
 # REV Hub Serial Protocol Analyzer
   
 ## Usage
-This analyzer has only been tested with the UART version of the protocol, not the RS-485 version.
+This analyzer has only been tested with the UART version of the protocol, not the RS-485 version. However, the RS-485 version should work fine as well. See https://support.saleae.com/protocol-analyzers/analyzer-user-guides/using-async-serial/decode-rs-232-rs-485-and-rs-422.
 
 1. Clone this repository locally
 2. Open the Logic 2 Extensions panel, click the "three-dots" menu icon, select "Load Existing Extension..." and select
