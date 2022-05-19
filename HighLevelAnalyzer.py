@@ -38,6 +38,8 @@ class Hla(HighLevelAnalyzer):
         self.currentPacketStartTime = None
         self.packetLengthBytes: Optional[bytearray] = None
         self.packetLength = 0
+        if self.DEKAInterfaceFirstId == 0:
+            self.DEKAInterfaceFirstId = 4096
 
     def clearCurrentPacket(self):
         self.currentPacket = None
