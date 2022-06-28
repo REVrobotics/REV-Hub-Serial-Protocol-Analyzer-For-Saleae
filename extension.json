@@ -2,7 +2,7 @@
   "name": "REV Hub Serial Protocol Analyzer",
   "apiVersion": "1.0.0",
   "author": "REV Robotics",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "extensions": {
     "REV Hub Serial Protocol Analyzer": {

@@ -210,6 +210,7 @@ class Hla(HighLevelAnalyzer):
                     packetTypeName = 'I2cWriteSingleByte'
                     i2cBus = str(payload[0])
                     i2cAddr = hex(payload[1])
+                    i2cReg = hex(payload[2])
                     i2cLength = '0'
                 elif typeId == self.DEKAInterfaceFirstId + 38:
                     frameType = I2C_CMD_FRAME_TYPE
