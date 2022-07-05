@@ -238,6 +238,9 @@ class Hla(HighLevelAnalyzer):
                 elif typeId == self.DEKAInterfaceFirstId + 42:
                     frameType = KNOWN_CMD_FRAME_TYPE
                     packetTypeName = 'I2cWriteStatusQuery'
+                elif typeId == self.DEKAInterfaceFirstId + 43:
+                    frameType = KNOWN_CMD_FRAME_TYPE
+                    packetTypeName = 'I2cConfigureChannel'
                 elif typeId == self.DEKAInterfaceFirstId + 48:
                     frameType = KNOWN_CMD_FRAME_TYPE
                     packetTypeName = 'ReadVersionString'
