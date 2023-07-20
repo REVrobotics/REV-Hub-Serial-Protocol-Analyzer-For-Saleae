@@ -1,5 +1,9 @@
 # REV Hub Serial Protocol Analyzer
-  
+
+## Setup
+
+To install the extension, open Logic, then click the 'extensions' tab on the right. Scroll down in the alphabetical list and click 'install' for 'REV Hub Serial Protocol Analyzer'.
+
 ## Usage
 This analyzer has only been tested with the UART version of the protocol, not the RS-485 version. However, the RS-485 version should work fine as well. See Saleae's [Decode RS-232, RS-485, & RS-422](https://support.saleae.com/protocol-analyzers/analyzer-user-guides/using-async-serial/decode-rs-232-rs-485-and-rs-422) page.
 
